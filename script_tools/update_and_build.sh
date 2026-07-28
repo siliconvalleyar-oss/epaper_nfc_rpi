@@ -6,7 +6,10 @@ cd "$(dirname "$0")/.."
 echo "=== Actualizando repo ==="
 git pull --ff-only origin main --tags
 
-if [[ -n $(git status --porcelain) ]]; then
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+
+if [[ "$LOCAL" != "$REMOTE" ]]; then
     echo "=== Cambios detectados. Limpiando y compilando ==="
     make clean
     make -j4

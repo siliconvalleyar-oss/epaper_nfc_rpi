@@ -15,6 +15,15 @@ static void onSignal(int) {
     running = false;
 }
 
+static std::string uidToHexString(const NFC::NfcTag& tag) {
+    char buf[128] = {0};
+    char* p = buf;
+    for (size_t i = 0; i < tag.uid.size(); i++) {
+        p += snprintf(p, sizeof(buf) - (p - buf), "%s%02X", (i > 0) ? ":" : "", tag.uid[i]);
+    }
+    return std::string(buf);
+}
+
 static std::string getTagTypeString(const NFC::NfcTag& tag) {
     char buf[32] = {0};
     snprintf(buf, sizeof(buf), "0x%02X:0x%02X", tag.atqa[0], tag.atqa[1]);
@@ -33,13 +42,6 @@ static std::string getTagTypeString(const NFC::NfcTag& tag) {
     }
 
     return "Tag ISO14443A";
-}
-    char buf[128] = {0};
-    char* p = buf;
-    for (size_t i = 0; i < tag.uid.size(); i++) {
-        p += snprintf(p, sizeof(buf) - (p - buf), "%s%02X", (i > 0) ? ":" : "", tag.uid[i]);
-    }
-    return std::string(buf);
 }
 
 int main() {
