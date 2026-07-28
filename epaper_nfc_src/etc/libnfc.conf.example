@@ -1,0 +1,2 @@
+device.name = "PN532"
+device.connstring = "pn532_uart:/dev/ttyAMA0"

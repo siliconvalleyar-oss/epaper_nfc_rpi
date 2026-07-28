@@ -1,6 +1,6 @@
 CC = g++
 CXXFLAGS = -std=c++20 -Ilibs -Isrc -Wall -pedantic -g -ffunction-sections -fdata-sections
-LIBRARIES = -pthread -lbcm2835 -Wl,--gc-sections
+LIBRARIES = -pthread -lbcm2835 -lnfc -Wl,--gc-sections
 
 SRC_DIR = src
 LIB_DIR = libs

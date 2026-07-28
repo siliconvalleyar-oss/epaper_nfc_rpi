@@ -1,12 +1,9 @@
 #pragma once
 
+#include <nfc/nfc.h>
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdio>
-#include <unistd.h>
-#include <fcntl.h>
-#include <termios.h>
 
 namespace NFC {
 
@@ -17,23 +14,21 @@ struct NfcTag {
 
 class NfcReader {
 public:
-    explicit NfcReader(const char* device = "/dev/ttyS0");
+    NfcReader();
     ~NfcReader();
 
-    bool open(speed_t baud = B115200);
-    void close();
-    bool isOpen() const { return m_fd >= 0; }
+    NfcReader(const NfcReader&) = delete;
+    NfcReader& operator=(const NfcReader&) = delete;
 
-    bool init();
+    bool open();
+    void close();
+    bool isOpen() const { return m_device != nullptr; }
+
     bool poll(NfcTag& outTag);
 
 private:
-    bool sendCommand(const uint8_t* cmd, size_t len);
-    bool readResponse(uint8_t* buf, size_t maxLen, size_t& outLen, int timeoutMs = 1000);
-    uint8_t checksum(const uint8_t* buf, size_t len) const;
-
-    int m_fd;
-    char m_device[64];
+    nfc_context* m_context;
+    nfc_device* m_device;
 };
 
 }
