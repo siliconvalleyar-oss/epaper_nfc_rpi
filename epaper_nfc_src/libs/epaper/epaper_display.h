@@ -17,6 +17,7 @@ public:
     bool init();
     void clearScreen(bool white = true);
     bool update();
+    void writeBuffer(const uint8_t* src);
 
     void drawPixel(int x, int y, bool black);
     void drawLine(int x0, int y0, int x1, int y1, bool black);

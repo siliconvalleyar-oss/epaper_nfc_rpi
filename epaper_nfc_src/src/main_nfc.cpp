@@ -8,6 +8,7 @@
 #include <epaper/epaper_display.h>
 #include <app/config.h>
 #include <nfc/NfcReader.h>
+#include <qr/qr_gen.h>
 
 static volatile bool running = true;
 
@@ -187,6 +188,18 @@ int main() {
                 snprintf(info, sizeof(info), "Lecturas: %d", stableCount);
                 display->drawCenteredString(y, info, FONT_3x8_TINY, true);
                 y += 9;
+
+                QR::QrGen qr;
+                qr.drawUID(uid, 3);
+                int qrStartX = 175;
+                int qrStartY = 20;
+                for (int row = 0; row < QR::QrGen::HEIGHT; row++) {
+                    for (int col = 0; col < QR::QrGen::WIDTH; col++) {
+                        if (qr.image[row][col]) {
+                            display->drawPixel(qrStartX + col, qrStartY + row, true);
+                        }
+                    }
+                }
 
                 if (stableCount > 10) {
                     display->drawCenteredString(y, "(retire la tarjeta)", FONT_3x8_TINY, true);
