@@ -23,10 +23,7 @@ namespace QR
                 void    drawQRCode      (const char* data, int scaleFactor);
                 int     qr_generator    ();
 
-                private:
-
-                    // Buffer de imagen en blanco y negro
-                    unsigned char imageBuffer[BYTES_PER_ROW * IMAGE_HEIGHT] = {0};
+                unsigned char imageBuffer[BYTES_PER_ROW * IMAGE_HEIGHT] = {0};
 
             };
 
