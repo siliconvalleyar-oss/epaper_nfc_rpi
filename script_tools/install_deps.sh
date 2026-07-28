@@ -116,3 +116,7 @@ while true; do
         *) echo -e "  ${RED}Opcion invalida${NC}" ;;
     esac
 done
+
+
+
+sudo apt-get install libraspberrypi-dev -y

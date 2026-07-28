@@ -15,7 +15,25 @@ static void onSignal(int) {
     running = false;
 }
 
-static std::string uidToHexString(const NFC::NfcTag& tag) {
+static std::string getTagTypeString(const NFC::NfcTag& tag) {
+    char buf[32] = {0};
+    snprintf(buf, sizeof(buf), "0x%02X:0x%02X", tag.atqa[0], tag.atqa[1]);
+    std::string atqaStr = buf;
+
+    if (tag.atqa[0] == 0x04 && tag.atqa[1] == 0x00 && tag.sak == 0x08) {
+        return "Mifare Classic 1K";
+    } else if (tag.atqa[0] == 0x44 && tag.atqa[1] == 0x00 && tag.sak == 0x00) {
+        return "Mifare Classic 4K";
+    } else if (tag.atqa[0] == 0x04 && tag.atqa[1] == 0x00 && tag.sak == 0x00) {
+        return "Mifare Classic 1K";
+    } else if (tag.atqa[0] == 0x04 && tag.sak == 0x18) {
+        return "Mifare Pro X";
+    } else if (tag.atqa[0] == 0x44 && tag.sak == 0x40) {
+        return "Mifare DESFire";
+    }
+
+    return "Tag ISO14443A";
+}
     char buf[128] = {0};
     char* p = buf;
     for (size_t i = 0; i < tag.uid.size(); i++) {
@@ -102,9 +120,12 @@ int main() {
 
         if (tagPresent) {
             std::string uid = uidToHexString(tag);
+            std::string typeStr = getTagTypeString(tag);
 
             std::cout << "Tag detectado - UID: " << uid
-                      << " | Tipo: 0x" << std::hex << (int)tag.type << std::dec
+                      << " | ATQA: " << std::hex << (int)tag.atqa[0] << ":" << (int)tag.atqa[1] << std::dec
+                      << " | SAK: 0x" << std::hex << (int)tag.sak << std::dec
+                      << " | Tipo: " << typeStr
                       << " | Bytes UID: " << (int)tag.uid.size() << std::endl;
 
             if (uid == lastUid) {
@@ -115,7 +136,6 @@ int main() {
             }
 
             if (stableCount >= STABLE_REQUIRED) {
-                std::string typeStr = (tag.type == 0x01) ? "Type A" : std::string("Type 0x") + std::to_string(tag.type);
                 display->drawCenteredString(y, "Tag detectado:", FONT_5x8, true);
                 y += 12;
 
@@ -123,17 +143,20 @@ int main() {
                 if (uidDisplay.length() > 19) {
                     uidDisplay = uidDisplay.substr(0, 19);
                 }
-
                 display->drawCenteredString(y, uidDisplay, FONT_8x8_WIDE, true);
                 y += 14;
 
-                char info[64];
-                snprintf(info, sizeof(info), "UID: %02zX bytes", tag.uid.size());
-                display->drawCenteredString(y, info, FONT_5x8, true);
-                y += 12;
-
                 display->drawCenteredString(y, typeStr.c_str(), FONT_5x8, true);
                 y += 12;
+
+                char info[64];
+                snprintf(info, sizeof(info), "UID: %d bytes", (int)tag.uid.size());
+                display->drawCenteredString(y, info, FONT_5x8, true);
+                y += 10;
+
+                snprintf(info, sizeof(info), "ATQA:%02X:%02X SAK:%02X", tag.atqa[0], tag.atqa[1], tag.sak);
+                display->drawCenteredString(y, info, FONT_3x8_TINY, true);
+                y += 9;
 
                 if (stableCount > 10) {
                     display->drawCenteredString(y, "(retire la tarjeta)", FONT_3x8_TINY, true);

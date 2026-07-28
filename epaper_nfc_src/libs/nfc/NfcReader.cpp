@@ -61,6 +61,9 @@ bool NfcReader::poll(NfcTag& outTag) {
     if (nfc_initiator_select_passive_target(m_device, nm, nullptr, 0, &nt) > 0) {
         outTag.uid.clear();
         outTag.type = 0x01;
+        outTag.atqa[0] = nt.nti.nai.abtAtqa[0];
+        outTag.atqa[1] = nt.nti.nai.abtAtqa[1];
+        outTag.sak = nt.nti.nai.btSak;
         outTag.uid.assign(
             nt.nti.nai.abtUid,
             nt.nti.nai.abtUid + nt.nti.nai.szUidLen

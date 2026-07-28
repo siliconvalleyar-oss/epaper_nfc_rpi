@@ -10,6 +10,8 @@ namespace NFC {
 struct NfcTag {
     std::vector<uint8_t> uid;
     uint8_t type;
+    uint8_t atqa[2];
+    uint8_t sak;
 };
 
 class NfcReader {
