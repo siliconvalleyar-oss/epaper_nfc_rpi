@@ -6,8 +6,10 @@
 - [x] Integración E-Paper 2.66" Pervasive Display (`libs/epaper/`)
 - [x] App principal `nfc_app` (`src/main_nfc.cpp`)
 - [x] Makefile actualizado + `.gitignore`
-- [x] Repo git + rama `epaper_nfc` + remote `siliconvalleyar-oss/epaper_nfc_rpi`
-- [x] Documentación `docs/SKILL_NFC_READER.md`
+- [x] Repo git público + rama `main` + remote `siliconvalleyar-oss/epaper_nfc_rpi`
+- [x] Tag `v1.5.0` pusheado, `VERSION=1.5.0`
+- [x] Documentación `docs/SKILL_NFC_READER.md` y `docs/REMOTE_BUILD.md` saneados
+- [x] Código muerto eliminado (Bitcoin legacy, fonts muertas, GPIO legacy, Tyme, config.h)
 
 ## Corto plazo
 
