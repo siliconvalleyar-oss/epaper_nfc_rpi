@@ -618,49 +618,6 @@ QR::Qr_gen_t qrGen;
 qrGen.drawQRCode("WIFI:T:WPA;S:MiRed;P:Clave;;", 5);
 epaper->globalUpdate(qrGen.imageBuffer, BW_0x00Buffer);
 ```
-
----
-### 10.3 NFC Reader (`src_epaper_nfc/` — `nfc_app`)
-
-Aplicación que lee tags/tarjetas NFC con un lector PN532 conectado por UART y muestra el UID en el E-Paper 2.66" (296x152).
-
-**Estado**: Código generado, listo para compilar en `src_epaper_nfc/`.
-
-**Hardware**:
-- Raspberry Pi (Pi 2W, 3B/4B, Zero 2W, 5)
-- Módulo lector NFC PN532 (UART)
-- Pantalla E-Paper Pervasive Display 2.66" (296x152)
-
-**Dependencias**:
-- bcm2835 (GPIO + E-Paper)
-- Sin dependencias adicionales para NFC (UART nativo)
-
-**Build y ejecución**:
-```bash
-cd src_epaper_nfc
-make
-sudo make run
-```
-
-Equivale a ejecutar:
-```bash
-sudo ./bin/nfc_app
-```
-
-**Comportamiento**:
-- Inicializa el E-Paper con full refresh global.
-- Abre el UART del PN532 y lo inicializa (SAMConfiguration en modo normal).
-- Hace polling continuo de tags/tarjetas NFC.
-- Muestra en el display:
-  - Título `NFC READER`
-  - Separador
-  - `Acerca una tarjeta NFC o tag al lector PN532` mientras espera
-  - `Tag detectado:` + UID en formato `XX:XX:XX:...` cuando lee
-  - Tipo de tag (`Type A` u otro) y cantidad de bytes del UID
-  - `(retire la tarjeta)` tras lecturas estables
-
-**Estabilidad de lectura**: requiere 3 polls consecutivos con el mismo UID para mostrar, evitando parpadeos por ruido en el aire.
-
 ---
 
 ### 10.3 NFC Reader (`src_epaper_nfc/` — `nfc_app`)
@@ -891,61 +848,15 @@ sudo ./bin/nfc_app
 ### Lectura NFC → E-Paper (src_epaper_nfc)
 
 ```cpp
-NFC::NfcReader nfc("/dev/ttyS0");
-if (!nfc.open()) { /* ... */ }
-if (!nfc.init()) { /* ... */ }
-
-NFC::NfcTag tag;
-while (running) {
-    if (nfc.poll(tag)) {
-        std::string uid = nfc.uidToString(tag);
-        display->clearScreen(true);
-        display->drawCenteredString(20, "NFC READER", /* ... */ true);
-        display->drawCenteredString(40, "Tag detectado:", /* ... */ true);
-        display->drawCenteredString(55, uid, /* ... */ true);
-        display->update();
-    }
-    usleep(200000);
+// Ejemplo mínimo: limpiar pantalla, luego dibujar y refrescar
+display->clearScreen(true);
+display->drawCenteredString(20, "NFC READER", FONT_7x8_THICK, true);
+display->drawCenteredString(40, "Tag detectado:", FONT_5x8, true);
+display->drawCenteredString(55, uid, FONT_8x8_WIDE, true);
+display->update();
+usleep(200000);
 }
 ```
-
----
-
-## 15. Referencias rápidas útiles
-
-```bash
-# Habilitar UART (I cart)
-sudo raspi-config
-
-# Ver puertos seriales
-ls -l /dev/ttyS0 /dev/ttyAMA0 /dev/serial0
-
-# Verificar logs UART
-sudo dmesg | grep tty
-
-# Escanear UART
-sudo cat /dev/ttyS0
-```
-
-```bash
-# Compilación rápida de app NFC
-cd src_epaper_nfc
-make
-sudo ./bin/nfc_app
-```
-
----
-
-## Notas
-
-- Las macros `DBG_EPAPER`, `DBG_SPI`, `DBG_GPIO` siguen aplicando para depurar el subsistema E-Paper.
-- Para NFC no hay trazas condicionales implementadas por ahora; se ejecuta sin logging interno.
-- El módulo `NFC::NfcReader` es autocontenido y puede reutilizarse en otros proyectos Raspberry + UART.
-- Si el PN532 tiene interrupciones por IRQ, sería necesario usar `select()` con timeout condicional por `poll()`. La versión actual usa polling bloqueante con timeout.
-
-Fin de `docs/SKILLS.md`.
-
-Al usar PN532 por UART, verificar:
 
 ```bash
 # Habilitar UART hardware en la Pi:
@@ -960,7 +871,7 @@ dtoverlay=disable-bt  # si se usa mini-uart, deshabilitar Bluetooth para liberar
 ls -l /dev/ttyS0 /dev/ttyAMA0 /dev/serial0
 ```
 
-### 13.4 Versionado
+### 23.1 Versionado
 
 - `VERSION` en la raíz del proyecto: **1.5.0**
 - Debe coincidir con el tag de git: `git tag v1.5.0`
@@ -970,7 +881,7 @@ cat VERSION         # → 1.5.0
 git describe --tags # → v1.5.0
 ```
 
-### 13.5 Archivos de documentación
+### 23.2 Archivos de documentación
 
 | Documento | Contenido |
 |:----------|:----------|
@@ -996,55 +907,7 @@ git describe --tags # → v1.5.0
 | `SKILL_REPARACIONES.md` | Bugs encontrados y corregidos |
 | `SKILL_DRIVER_EPD.md` | Funcionamiento interno del driver |
 | `SKILL_DEBUG_SPI_GPIO.md` | Depuración de SPI y GPIO |
-| `SKILL_BTC.md` | Bitcoin ticker en E-Paper |
 | `SKILL_NFC_READER.md` | NFC Reader PN532 → E-Paper |
-| `SKILL_NFC_READER.md` | NFC Reader PN532 → E-Paper |
-| `SKILL_NFC_READER.md` | NFC Reader PN532 → E-Paper |
+| `LEARNINGS.md` | Reglas de versionado y convenciones del proyecto |
 
----
-
-## 14. Ejemplo de Uso Completo
-
-```cpp
-#include <iostream>
-#include <memory>
-#include <epaper/epaper.h>
-#include <epaper/boards.h>
-#include <graphics/userImageData.h>
-#include <tyme/tyme.h>
-
-int main() {
-    // 1. Inicializar hardware
-    if (!bcm2835_init()) {
-        std::cerr << "Error bcm2835_init()" << std::endl;
-        return 1;
-    }
-
-    // 2. Crear driver
-    auto epaper = std::make_unique<EPAPER::EPD_Driver>(
-        EPAPER::eScreen_EPD_266,
-        EPAPER::boardRaspberryPiZero2W
-    );
-
-    // 3. Inicializar COG
-    epaper->COG_initial();
-    epaper->printGpios();
-
-    // 4. Actualizaciones
-    epaper->globalUpdate(BW_monoBuffer, BW_0x00Buffer);
-    TYME::delay(900);
-    epaper->globalUpdate(BWR_blackBuffer, BWR_redBuffer);
-
-    // 5. Apagar
-    epaper->COG_powerOff();
-    bcm2835_close();
-
-    return 0;
-}
-```
-
-```bash
-# Compilar y ejecutar
-make
-sudo ./bin/epaper_app
-```
+Fin de `docs/SKILLS.md`.

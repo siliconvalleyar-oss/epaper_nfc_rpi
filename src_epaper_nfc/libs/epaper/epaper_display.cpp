@@ -119,21 +119,7 @@ void EpaperDisplay::drawLine(int x0, int y0, int x1, int y1, bool black) {
     }
 }
 
-void EpaperDisplay::drawRectangle(int x, int y, int w, int h, bool fill, bool black) {
-    if (fill) {
-        for (int i = 0; i < w; i++)
-            for (int j = 0; j < h; j++)
-                drawPixel(x + i, y + j, black);
-    } else {
-        int x2 = x + w - 1, y2 = y + h - 1;
-        drawLine(x, y, x2, y, black);
-        drawLine(x2, y, x2, y2, black);
-        drawLine(x2, y2, x, y2, black);
-        drawLine(x, y2, x, y, black);
-    }
 }
-
-void EpaperDisplay::drawCharToBuffer(int x, int y, char c, FontManager& fm, bool black) {
     const uint8_t* bitmap = fm.getCharBitmap(c);
     if (!bitmap) return;
 

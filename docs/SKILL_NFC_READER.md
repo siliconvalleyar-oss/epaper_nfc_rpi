@@ -56,17 +56,10 @@ Archivos:
 Clase principal: `NFC::NfcReader`.
 
 Responsabilidades:
-- Abrir UART (`/dev/ttyS0`, `/dev/ttyAMA0` o `/dev/serial0`) a 115200 8N1.
-- Inicializar módulo con SAMConfiguration modo normal.
-- Detectar tags pasivos 106A con InListPassiveTarget.
+- Abrir UART a 115200 8N1.
+- Inicializar módulo con SAMConfiguration en modo normal.
+- Detectar tags pasivos 106A con `InListPassiveTarget`.
 - Devolver UID y tipo.
-
-Respuesta PN532 utilizada:
-- `0xD5` a `0x55` (prólogo y final de trama)
-- `nbTargets` = 1
-- `tgt` tipo (ej. 0x01 = Type A)
-- longitud UID
-- bytes del UID
 
 ### 3.2 Integración con E-Paper
 
@@ -75,21 +68,25 @@ Archivo:
 
 Flujo:
 1. `bcm2835_init()`
-2. Crear `EpaperDisplay` 266 + `boardRaspberryPiZero2W` (o `boardRaspberryPi`)
+2. Crear `EpaperDisplay` 2.66" + `boardRaspberryPi`
 3. `display->init()`: COG_initial + globalUpdate inicial
 4. Crear `NfcReader`
 5. Loop principal:
    - Limpiar pantalla
    - Dibujar título `NFC READER`
    - `nfc.poll(tag)` con timeout ~500 ms
-   - Si tag: establecer lastUid y establecer estable tras 3 coincidencias, dibujar en display
-   - Mostrar: `Tag detectado:`, `XX:XX:XX:...`, tipo, bytes
-   - `display->update()` (fastUpdate si cambió)
+   - Si tag: esperar 3 lecturas estables, dibujar UID en pantalla
+   - Mostrar: `Tag detectado:`, UID en `XX:XX:...`, tipo y bytes
+   - `display->update()` (fastUpdate diferencial)
    - Esperar 200 ms
 
 ### 3.3 Estabilidad de lectura
 
 Para evitar parpadeos por ruido electromagnético o múltiples lecturas ruidosas, se requiere **3 lecturas estables** (mismo UID) antes de renderizar el tag en pantalla.
+
+### 3.4 Señales SIGINT / SIGTERM
+
+La aplicación captura `SIGINT` y `SIGTERM`. Al recibirlas, sale del loop, libera buffers y cierra bcm2835 limpio.
 
 ---
 

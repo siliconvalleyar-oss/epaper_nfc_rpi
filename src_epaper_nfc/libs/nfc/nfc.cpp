@@ -152,13 +152,4 @@ bool NfcReader::poll(NfcTag& outTag) {
     return true;
 }
 
-std::string NfcReader::uidToString(const NfcTag& tag) const {
-    char buf[128] = {0};
-    char* p = buf;
-    for (size_t i = 0; i < tag.uid.size(); i++) {
-        p += snprintf(p, sizeof(buf) - (p - buf), "%02X", tag.uid[i]);
-    }
-    return std::string(buf);
-}
-
 }

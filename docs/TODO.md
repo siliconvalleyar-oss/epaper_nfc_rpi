@@ -1,77 +1,45 @@
-# TODO — E-Paper Display para Raspberry Pi
+# TODO — E-Paper NFC Reader 2.66"
+
+## Actual
+
+- [x] Módulo NFC PN532 por UART (`libs/nfc/`)
+- [x] Integración E-Paper 2.66" Pervasive Display (`libs/epaper/`)
+- [x] App principal `nfc_app` (`src/main_nfc.cpp`)
+- [x] Makefile actualizado + `.gitignore`
+- [x] Repo git + rama `epaper_nfc` + remote `siliconvalleyar-oss/epaper_nfc_rpi`
+- [x] Documentación `docs/SKILL_NFC_READER.md`
 
 ## Corto plazo
 
-- [ ] Agregar `main.cpp` como demonio con OBD2 (reutilizar ELM327 de obd2_rpi)
-- [ ] Soporte de doble buffer para evitar flicker en actualizaciones parciales
-- [ ] Manejo de señal SIGTERM/SIGINT para apagado limpio del display
-- [ ] Script de instalación como servicio systemd
+- [ ] Mostrar en display **Nombre + RUT + Carrera** del alumno (reemplazar `uidToHexString` por lookup)
+- [ ] Persistir lectura en archivo local CSV/JSON (`logs/` con timestamp + UID)
+- [ ] Agregar QR de comprobante con datos formateados (libqrencode)
+- [ ] Manejo de señal `SIGINT/SIGTERM` con apagado limpio
+- [ ] Lista blanca de UIDs permitidos o estado de acceso (`ACEPTADO`/`RECHAZADO`)
+- [ ] Timeout configurable para auto-cierre de lectura en display
 
 ## Mediano plazo
 
-- [ ] Soporte para más tamaños de pantalla (2.9", 4.2", 7.5")
-- [ ] Fuentes adicionales (negrita, cursiva, iconos)
-- [ ] Modo de bajo consumo (deep sleep del display)
-- [ ] Soporte de imagen BMP desde archivo
-- [ ] Generación de QR en display (ya hay `qr_gen.cpp`)
-- [ ] Historial de renderizado con timestamp
+- [ ] Generar y cachear **registro/charla** en backend HTTP POST
+- [ ] Web Record Viewer local (servidor HTTP en RPi para ver últimas lecturas)
+- [ ] Sincronización WiFi periódica (cola offline)
+- [ ] Modo demo sin hardware NFC (simula UID aleatorios para pruebas)
 
 ## Largo plazo
 
-- [ ] Dashboard OBD2 completo en e-paper (RPM, velocidad, temperatura)
-- [ ] Actualización por WiFi (socket server en RPi)
-- [ ] App companion Flutter para enviar contenido al display
-- [ ] Soporte multitarea con varios displays en cadena SPI
-- [ ] Interfaz web de configuración
+- [ ] Multi-lector / multi-display
+- [ ] Firmware de lector actualizable OTA
+- [ ] Dashboard analytics desde historial
 
-## Bugs conocidos
+## Bugs conocidos / Deuda técnica
 
-- [ ] El constructor no verifica si `new` falla (sin excepciones habilitadas)
-- [ ] `drawCenteredString` no funciona correctamente con todas las fuentes (ancho variable no soportado)
-- [ ] La detección `CPU_32_BITS` en `config.h` puede fallar en compiladores cruzados
+- [ ] `uidToString()` declarada en `libs/nfc/nfc.h` pero no implementada en `.cpp`
+- [ ] Falta manejo de excepciones en E-Paper (si bcm2835 falla)
+- [ ] `SIGPIPE` no capturado en modo HTTP
+- [ ] No hay re-exposición tras `COG_powerOff()` (requiere reinicio app)
 
-## Arquitectura
+## Versionado
 
-- [ ] Separar `epaper_display.cpp` en módulos: `drawing.cpp`, `text.cpp`, `fonts.cpp`
-- [ ] Agregar tests unitarios para coordenadas de `drawPixel`
-- [ ] CI/CD con GitHub Actions para compilación ARM64
-- [ ] Refactorizar Makefile a CMake para mejor portabilidad
-
-# TODO — E-Paper Display para Raspberry Pi
-
-## Corto plazo
-
-- [ ] Agregar `main.cpp` como demonio con OBD2 (reutilizar ELM327 de obd2_rpi)
-- [ ] Soporte de doble buffer para evitar flicker en actualizaciones parciales
-- [ ] Manejo de señal SIGTERM/SIGINT para apagado limpio del display
-- [ ] Script de instalación como servicio systemd
-
-## Mediano plazo
-
-- [ ] Soporte para más tamaños de pantalla (2.9", 4.2", 7.5")
-- [ ] Fuentes adicionales (negrita, cursiva, iconos)
-- [ ] Modo de bajo consumo (deep sleep del display)
-- [ ] Soporte de imagen BMP desde archivo
-- [ ] Generación de QR en display (ya hay `qr_gen.cpp`)
-- [ ] Historial de renderizado con timestamp
-
-## Largo plazo
-
-- [ ] Dashboard OBD2 completo en e-paper (RPM, velocidad, temperatura)
-- [ ] Actualización por WiFi (socket server en RPi)
-- [ ] App companion Flutter para enviar contenido al display
-- [ ] Soporte multitarea con varios displays en cadena SPI
-- [ ] Interfaz web de configuración
-
-## Bugs conocidos
-
-- [ ] El constructor no verifica si `new` falla (sin excepciones habilitadas)
-- [ ] `drawCenteredString` no funciona correctamente con todas las fuentes (ancho variable no soportado)
-- [ ] La detección `CPU_32_BITS` en `config.h` puede fallar en compiladores cruzados
-
-## Arquitectura
-
-- [ ] Separar `epaper_display.cpp` en módulos: `drawing.cpp`, `text.cpp`, `fonts.cpp`
-- [ ] Agregar tests unitarios para coordenadas de `drawPixel`
-- [ ] CI/CD con GitHub Actions para compilación ARM64
-- [ ] Refactorizar Makefile a CMake para mejor portabilidad
+Sigue reglas de `docs/LEARNINGS.md`:
+- `VERSION` debe coincidir con último tag publicado
+- Mensajes de commit en conventional commits (`feat:`, `fix:`, `docs:`...)

@@ -24,7 +24,6 @@ static void delay_ms(uint32_t ms) {
 }
 
 // Definición de registros
-const uint8_t register_data_mid[] = { 0x00, 0x0e, 0x19, 0x02, 0x0f, 0x89 };
 const uint8_t register_data_sm[] = { 0x00, 0x0e, 0x19, 0x02, 0xcf, 0x8d };
 
 // Implementación de Spi_t
@@ -83,47 +82,14 @@ EPD_Driver::EPD_Driver(uint32_t eScreen_EPD, const pins_t& board)
     uint16_t screenSizeH = 0;
     
     switch (pdi_size) {
-        case 0x15: // 1.54"
-            screenSizeV = 152;
-            screenSizeH = 152;
-            break;
-
-        case 0x21: // 2.13"
-            screenSizeV = 212;
-            screenSizeH = 104;
-            break;
-
         case 0x26: // 2.66"
             screenSizeV = 296;
             screenSizeH = 152;
             break;
 
-        case 0x27: // 2.71"
-            screenSizeV = 264;
-            screenSizeH = 176;
-            break;
-
-        case 0x28: // 2.87"
-            screenSizeV = 296;
-            screenSizeH = 128;
-            break;
-
-        case 0x37: // 3.70"
-            screenSizeV = 416;
-            screenSizeH = 240;
-            break;
-
-        case 0x41: // 4.17"
-            screenSizeV = 300;
-            screenSizeH = 400;
-            break;
-
-        case 0x43: // 4.37"
-            screenSizeV = 480;
-            screenSizeH = 176;
-            break;
-
         default:
+            screenSizeV = 296;
+            screenSizeH = 152;
             break;
     }
 
@@ -335,40 +301,6 @@ void EPD_Driver::COG_powerOff() {
     delay_ms(150);
     
     digitalWrite(pin_cfg_epaper.panelReset, LOW);
-}
-
-void EPD_Driver::printGpios() {
-    std::cout << "========================================" << std::endl;
-    std::cout << "Configuración de GPIOs para E-Paper:" << std::endl;
-    std::cout << "----------------------------------------" << std::endl;
-    std::cout << "Panel BUSY  : GPIO" << pin_cfg_epaper.panelBusy << std::endl;
-    std::cout << "Panel DC    : GPIO" << pin_cfg_epaper.panelDC << std::endl;
-    std::cout << "Panel RESET : GPIO" << pin_cfg_epaper.panelReset << std::endl;
-    std::cout << "Panel CS    : GPIO" << pin_cfg_epaper.panelCS << std::endl;
-    std::cout << "Panel ON_EXT2: ";
-    if (pin_cfg_epaper.panelON_EXT2 == NOT_CONNECTED) {
-        std::cout << "NOT CONNECTED" << std::endl;
-    } else {
-        std::cout << "GPIO" << pin_cfg_epaper.panelON_EXT2 << std::endl;
-    }
-    std::cout << "Panel SPI43 : ";
-    if (pin_cfg_epaper.panelSPI43_EXT2 == NOT_CONNECTED) {
-        std::cout << "NOT CONNECTED" << std::endl;
-    } else {
-        std::cout << "GPIO" << pin_cfg_epaper.panelSPI43_EXT2 << std::endl;
-    }
-    std::cout << "Flash CS    : ";
-    if (pin_cfg_epaper.flashCS == NOT_CONNECTED) {
-        std::cout << "NOT CONNECTED" << std::endl;
-    } else {
-        std::cout << "GPIO" << pin_cfg_epaper.flashCS << std::endl;
-    }
-    std::cout << "========================================" << std::endl;
-    std::cout << "SPI Configuración:" << std::endl;
-    std::cout << "  - Clock: SCLK (GPIO11)" << std::endl;
-    std::cout << "  - MOSI: GPIO10" << std::endl;
-    std::cout << "  - MISO: GPIO9 (no usado)" << std::endl;
-    std::cout << "========================================" << std::endl;
 }
 
 } // namespace EPAPER

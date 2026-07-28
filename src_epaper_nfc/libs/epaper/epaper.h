@@ -45,17 +45,9 @@ namespace EPAPER {
 #define NOT_CONNECTED 0xff
 
 // Tipos de pantalla E-Paper
-#define eScreen_EPD_154 (uint32_t)0x1509
-#define eScreen_EPD_213 (uint32_t)0x2100
 #define eScreen_EPD_266 (uint32_t)0x2600
-#define eScreen_EPD_271 (uint32_t)0x2700
-#define eScreen_EPD_287 (uint32_t)0x2800
-#define eScreen_EPD_370 (uint32_t)0x3700
-#define eScreen_EPD_417 (uint32_t)0x4100
-#define eScreen_EPD_437 (uint32_t)0x430C
 
 // Registros para diferentes tamaños de pantalla
-[[maybe_unused]] extern const uint8_t register_data_mid[];
 [[maybe_unused]] extern const uint8_t register_data_sm[];
 
 struct pins_t {
@@ -102,9 +94,6 @@ public:
     void COG_powerOff();
     void globalUpdate(const uint8_t *data1s, const uint8_t *data2s);
     void fastUpdate(const uint8_t *oldData, const uint8_t *newData);
-    
-    // Funciones auxiliares
-    void printGpios();
 
 protected:
     void sendIndexData(uint8_t index, const uint8_t *data, uint32_t len);
