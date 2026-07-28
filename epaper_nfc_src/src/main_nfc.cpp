@@ -25,23 +25,27 @@ static std::string uidToHexString(const NFC::NfcTag& tag) {
 }
 
 static std::string getTagTypeString(const NFC::NfcTag& tag) {
-    char buf[32] = {0};
-    snprintf(buf, sizeof(buf), "0x%02X:0x%02X", tag.atqa[0], tag.atqa[1]);
-    std::string atqaStr = buf;
+    uint16_t atqa16 = (uint16_t)(tag.atqa[0] | ((uint16_t)tag.atqa[1] << 8));
 
-    if (tag.atqa[0] == 0x04 && tag.atqa[1] == 0x00 && tag.sak == 0x08) {
+    if (atqa16 == 0x0004 && tag.sak == 0x08) {
         return "Mifare Classic 1K";
-    } else if (tag.atqa[0] == 0x44 && tag.atqa[1] == 0x00 && tag.sak == 0x00) {
+    } else if (atqa16 == 0x0044 && tag.sak == 0x00) {
         return "Mifare Classic 4K";
-    } else if (tag.atqa[0] == 0x04 && tag.atqa[1] == 0x00 && tag.sak == 0x00) {
-        return "Mifare Classic 1K";
-    } else if (tag.atqa[0] == 0x04 && tag.sak == 0x18) {
-        return "Mifare Pro X";
-    } else if (tag.atqa[0] == 0x44 && tag.sak == 0x40) {
+    } else if (atqa16 == 0x0044 && tag.sak == 0x40) {
         return "Mifare DESFire";
+    } else if (atqa16 == 0x0004 && tag.sak == 0x18) {
+        return "Mifare Pro X";
+    } else if (atqa16 == 0x0004 && tag.sak == 0x00) {
+        return "Mifare Classic 1K";
+    } else if (atqa16 == 0x0208) {
+        return "Mifare Ultralight";
+    } else if (atqa16 == 0x4400) {
+        return "Mifare DESFire EV1";
     }
 
-    return "Tag ISO14443A";
+    char buf[32] = {0};
+    snprintf(buf, sizeof(buf), "ISO14443A ATQA:%04X", atqa16);
+    return std::string(buf);
 }
 
 int main() {
@@ -107,6 +111,9 @@ int main() {
     std::string lastUid;
     int stableCount = 0;
     const int STABLE_REQUIRED = 3;
+    int totalUniqueTags = 0;
+    time_t tagFirstSeen = 0;
+    std::string displayedUid;
 
     while (running) {
         display->clearScreen(true);
@@ -138,6 +145,14 @@ int main() {
             }
 
             if (stableCount >= STABLE_REQUIRED) {
+                if (uid != displayedUid) {
+                    displayedUid = uid;
+                    if (tagFirstSeen == 0) {
+                        tagFirstSeen = time(nullptr);
+                        totalUniqueTags++;
+                    }
+                }
+
                 display->drawCenteredString(y, "Tag detectado:", FONT_5x8, true);
                 y += 12;
 
@@ -157,6 +172,19 @@ int main() {
                 y += 10;
 
                 snprintf(info, sizeof(info), "ATQA:%02X:%02X SAK:%02X", tag.atqa[0], tag.atqa[1], tag.sak);
+                display->drawCenteredString(y, info, FONT_3x8_TINY, true);
+                y += 9;
+
+                int elapsed = (int)(time(nullptr) - tagFirstSeen);
+                if (elapsed >= 60) {
+                    snprintf(info, sizeof(info), "Tiempo: %dm%ds", elapsed / 60, elapsed % 60);
+                } else {
+                    snprintf(info, sizeof(info), "Tiempo: %ds", elapsed);
+                }
+                display->drawCenteredString(y, info, FONT_3x8_TINY, true);
+                y += 9;
+
+                snprintf(info, sizeof(info), "Lecturas: %d", stableCount);
                 display->drawCenteredString(y, info, FONT_3x8_TINY, true);
                 y += 9;
 

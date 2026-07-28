@@ -14,6 +14,13 @@ struct NfcTag {
     uint8_t sak;
 };
 
+struct TagInfo {
+    NFC::NfcTag tag;
+    int readCount;
+    time_t firstSeen;
+    time_t lastSeen;
+};
+
 class NfcReader {
 public:
     NfcReader();
