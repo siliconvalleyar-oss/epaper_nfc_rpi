@@ -1,5 +1,5 @@
 #include <nfc/nfc.h>
-#include "nfc.h"
+#include "NfcReader.h"
 #include <iostream>
 
 namespace NFC {

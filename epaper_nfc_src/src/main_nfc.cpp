@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <epaper/epaper_display.h>
 #include <app/config.h>
-#include <nfc/nfc.h>
+#include <nfc/NfcReader.h>
 
 static volatile bool running = true;
 
