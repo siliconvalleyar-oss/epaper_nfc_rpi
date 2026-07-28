@@ -28,7 +28,7 @@ int main() {
     signal(SIGINT, onSignal);
     signal(SIGTERM, onSignal);
 
-    std::cout << "=== NFC → E-Paper Reader ===" << std::endl;
+    std::cout << "=== NFC → E-Paper Reader v" << VERSION_STRING << " ===" << std::endl;
 
     if (!bcm2835_init()) {
         std::cerr << "ERROR: bcm2835_init() failed" << std::endl;
@@ -70,7 +70,8 @@ int main() {
 
     display->clearScreen(true);
     display->drawCenteredString(20, "EPAPER + NFC", FONT_7x8_THICK, true);
-    display->drawCenteredString(40, "Raspberry Pi", FONT_5x8, true);
+    display->drawCenteredString(35, "v" VERSION_STRING, FONT_3x8_TINY, true);
+    display->drawCenteredString(50, "Raspberry Pi", FONT_5x8, true);
     display->drawLine(20, 58, 265, 58, true);
 
     display->drawString(20, 70, "Display:", FONT_5x8, true);

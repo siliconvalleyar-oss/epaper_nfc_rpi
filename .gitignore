@@ -48,3 +48,4 @@ src_epaper_nfc/bin/
 *.db
 
 secret.key
+pn532_lib/
