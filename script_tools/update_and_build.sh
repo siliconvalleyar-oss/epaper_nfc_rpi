@@ -3,12 +3,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-RELEASE_BRANCH=$(git branch -r | grep "origin/release/" | sort -V | tail -n 1 | xargs)
-
-if [[ -z "$RELEASE_BRANCH" ]]; then
-    echo "No release branches found. Using main."
-    RELEASE_BRANCH="origin/main"
-fi
+RELEASE_BRANCH="origin/release/epaper_nfc_QR"
 
 echo "=== Actualizando $RELEASE_BRANCH ==="
 git pull --ff-only "$RELEASE_BRANCH" --tags
