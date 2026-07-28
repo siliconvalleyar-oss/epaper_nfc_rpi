@@ -125,34 +125,16 @@ void EpaperDisplay::drawCharToBuffer(int x, int y, char c, FontManager& fm, bool
 
     int width = fm.getFontWidth();
     int height = fm.getFontHeight();
-    FontType type = fm.getCurrentFontType();
 
-    if (type == FONT_16x32_BIGNUM || type == FONT_16x16_MEDNUM) {
-        int bytesPerCol = height / 8;
-        for (int col = 0; col < width; col++) {
-            for (int row = 0; row < height; row++) {
-                int byteIndex = col * bytesPerCol + (row / 8);
-                int bitIndex = 7 - (row % 8);
-                bool pixel = (bitmap[byteIndex] >> bitIndex) & 0x01;
+    for (int col = 0; col < width; col++) {
+        uint8_t byte = bitmap[col];
+        for (int row = 0; row < height; row++) {
+            bool pixel = (byte >> row) & 0x01;
 
-                if (pixel) {
-                    drawPixel(x + col, y + row, black);
-                } else if (!m_transparent) {
-                    drawPixel(x + col, y + row, false);
-                }
-            }
-        }
-    } else {
-        for (int col = 0; col < width; col++) {
-            uint8_t byte = bitmap[col];
-            for (int row = 0; row < height; row++) {
-                bool pixel = (byte >> row) & 0x01;
-
-                if (pixel) {
-                    drawPixel(x + col, y + row, black);
-                } else if (!m_transparent) {
-                    drawPixel(x + col, y + row, false);
-                }
+            if (pixel) {
+                drawPixel(x + col, y + row, black);
+            } else if (!m_transparent) {
+                drawPixel(x + col, y + row, false);
             }
         }
     }

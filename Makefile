@@ -3,8 +3,7 @@
 #        make        (compila todos los proyectos)
 #        make -j4    (compila en paralelo)
 
-PROJECTS = RASPI_EPD_SRC_Clock_Ascii RASPI_EPD_SRC_QR_Invert_Graphics RASPI_EPD_SRC_Electrocardiogram RASPI_EPD_SRC_Dino_Game
-
+PROJECTS = src_epaper_nfc
 .PHONY: all clean $(PROJECTS)
 
 all: $(PROJECTS)
