@@ -30,6 +30,7 @@ public:
 private:
     bool sendCommand(const uint8_t* cmd, size_t len);
     bool readResponse(uint8_t* buf, size_t maxLen, size_t& outLen, int timeoutMs = 1000);
+    uint8_t checksum(const uint8_t* buf, size_t len) const;
 
     int m_fd;
     char m_device[64];

@@ -3,7 +3,7 @@
 #        make        (compila todos los proyectos)
 #        make -j4    (compila en paralelo)
 
-PROJECTS = src_epaper_nfc
+PROJECTS = epaper_nfc_src
 .PHONY: all clean $(PROJECTS)
 
 all: $(PROJECTS)
