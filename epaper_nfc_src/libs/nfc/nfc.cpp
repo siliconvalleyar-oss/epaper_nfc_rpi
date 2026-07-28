@@ -13,7 +13,7 @@ NfcReader::~NfcReader() {
     close();
 }
 
-bool NfcReader::open() {
+bool NfcReader::open(speed_t baud) {
     m_fd = ::open(m_device, O_RDWR | O_NOCTTY | O_SYNC);
     if (m_fd < 0) {
         perror("ERROR opening NFC device");
@@ -28,8 +28,8 @@ bool NfcReader::open() {
     }
 
     cfmakeraw(&options);
-    cfsetispeed(&options, B115200);
-    cfsetospeed(&options, B115200);
+    cfsetispeed(&options, baud);
+    cfsetospeed(&options, baud);
 
     options.c_cflag |= (CLOCAL | CREAD);
     options.c_cflag &= ~PARENB;

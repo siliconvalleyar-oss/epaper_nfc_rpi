@@ -20,7 +20,7 @@ public:
     explicit NfcReader(const char* device = "/dev/ttyS0");
     ~NfcReader();
 
-    bool open();
+    bool open(speed_t baud = B115200);
     void close();
     bool isOpen() const { return m_fd >= 0; }
 

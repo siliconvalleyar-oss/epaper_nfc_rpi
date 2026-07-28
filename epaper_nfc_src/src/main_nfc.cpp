@@ -44,26 +44,29 @@ int main() {
     }
 
     NFC::NfcReader nfc("/dev/ttyS0");
-    if (!nfc.open()) {
-        std::cerr << "WARNING: NFC device open failed, retrying /dev/ttyAMA0..." << std::endl;
-        nfc = NFC::NfcReader("/dev/ttyAMA0");
-        if (!nfc.open()) {
-            std::cerr << "WARNING: NFC device open failed, retrying /dev/serial0..." << std::endl;
-            nfc = NFC::NfcReader("/dev/serial0");
-            if (!nfc.open()) {
-                std::cerr << "ERROR: Cannot open NFC device (PN532 UART)." << std::endl;
-                std::cerr << "Check wiring: TXD->RXD, RXD->TXD, GND->GND, VCC->3.3V" << std::endl;
-                return 1;
+    bool nfcReady = false;
+    static const char* ports[] = {"/dev/ttyS0", "/dev/ttyAMA0", "/dev/serial0"};
+    static const speed_t bauds[] = {B115200, B9600, B19200};
+
+    for (const char* port : ports) {
+        for (speed_t baud : bauds) {
+            nfc = NFC::NfcReader(port);
+            if (nfc.open(baud)) {
+                if (nfc.init()) {
+                    nfcReady = true;
+                    break;
+                }
+                nfc.close();
             }
         }
+        if (nfcReady) break;
     }
 
-    if (!nfc.init()) {
-        std::cerr << "ERROR: NFC init failed" << std::endl;
-        return 1;
+    if (nfcReady) {
+        std::cout << "NFC reader ready." << std::endl;
+    } else {
+        std::cerr << "ERROR: Cannot initialize NFC reader on any port/baud." << std::endl;
     }
-
-    std::cout << "NFC reader ready." << std::endl;
 
     display->clearScreen(true);
     display->drawCenteredString(20, "EPAPER + NFC", FONT_7x8_THICK, true);
@@ -103,6 +106,7 @@ int main() {
     std::string lastUid;
     int stableCount = 0;
     const int STABLE_REQUIRED = 3;
+    int nfcRetryCounter = 0;
 
     while (running) {
         display->clearScreen(true);
@@ -112,6 +116,49 @@ int main() {
         y += 14;
         display->drawLine(10, y, 285, y, true);
         y += 10;
+
+        if (!nfcReady) {
+            if (++nfcRetryCounter >= 10) {
+                nfcRetryCounter = 0;
+                for (const char* port : ports) {
+                    for (speed_t baud : bauds) {
+                        nfc = NFC::NfcReader(port);
+                        if (nfc.open(baud)) {
+                            if (nfc.init()) {
+                                nfcReady = true;
+                                break;
+                            }
+                            nfc.close();
+                        }
+                    }
+                    if (nfcReady) break;
+                }
+            }
+
+            if (nfcReady) {
+                display->drawCenteredString(y, "NFC: CONECTADO", FONT_5x8, true);
+                y += 12;
+            } else {
+                display->drawCenteredString(y, "NFC: NO DETECTADO", FONT_5x8, true);
+                y += 12;
+                display->drawCenteredString(y, "Reintentando...", FONT_3x8_TINY, true);
+                y += 9;
+
+                display->drawCenteredString(y, "Verifique:", FONT_3x8_TINY, true);
+                y += 9;
+                display->drawCenteredString(y, "TXD->RXD  RXD->TXD", FONT_3x8_TINY, true);
+                y += 9;
+                display->drawCenteredString(y, "GND->GND  VCC->3.3V", FONT_3x8_TINY, true);
+                y += 9;
+
+                display->drawCenteredString(y, "UART o baud rate", FONT_3x8_TINY, true);
+                y += 9;
+
+                display->update();
+                usleep(200000);
+                continue;
+            }
+        }
 
         NFC::NfcTag tag;
         bool tagPresent = nfc.poll(tag);
