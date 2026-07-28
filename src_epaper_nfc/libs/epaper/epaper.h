@@ -45,6 +45,8 @@ namespace EPAPER {
 #define NOT_CONNECTED 0xff
 
 // Tipos de pantalla E-Paper
+#define eScreen_EPD_154 (uint32_t)0x1509
+#define eScreen_EPD_213 (uint32_t)0x2100
 #define eScreen_EPD_266 (uint32_t)0x2600
 
 // Registros para diferentes tamaños de pantalla
