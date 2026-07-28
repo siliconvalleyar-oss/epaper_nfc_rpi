@@ -167,6 +167,10 @@ int main() {
         if (tagPresent) {
             std::string uid = uidToHexString(tag);
 
+            std::cout << "Tag detectado - UID: " << uid
+                      << " | Tipo: 0x" << std::hex << (int)tag.type << std::dec
+                      << " | Bytes UID: " << (int)tag.uid.size() << std::endl;
+
             if (uid == lastUid) {
                 stableCount++;
             } else {
