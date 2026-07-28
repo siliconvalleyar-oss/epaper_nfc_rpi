@@ -12,9 +12,9 @@ NfcReader::~NfcReader() {
 }
 
 bool NfcReader::open() {
-    if (nfc_init(&m_context) < 0) {
+    nfc_init(&m_context);
+    if (!m_context) {
         std::cerr << "ERROR: nfc_init failed" << std::endl;
-        m_context = nullptr;
         return false;
     }
 
