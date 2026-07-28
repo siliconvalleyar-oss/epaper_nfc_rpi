@@ -66,16 +66,36 @@ int main() {
     std::cout << "NFC reader ready." << std::endl;
 
     display->clearScreen(true);
-    display->drawCenteredString(60, "SISTEMA", FONT_7x8_THICK, true);
-    display->drawCenteredString(85, "NFC + E-PAPER", FONT_7x8_THICK, true);
-    display->drawCenteredString(130, "Iniciando...", FONT_3x8_TINY, true);
+    display->drawCenteredString(20, "EPAPER + NFC", FONT_7x8_THICK, true);
+    display->drawCenteredString(40, "Raspberry Pi", FONT_5x8, true);
+    display->drawLine(20, 58, 265, 58, true);
+
+    display->drawString(20, 70, "Display:", FONT_5x8, true);
+    display->drawString(20, 84, "Modelo: EPD_2.66", FONT_3x8_TINY, true);
+    display->drawString(20, 96, "Panel: B/W/R (3col)", FONT_3x8_TINY, true);
+    display->drawString(20, 110, "SPI: activo", FONT_3x8_TINY, true);
+    display->drawString(20, 122, "pines: RST=23, DC=24, CS=27, BUSY=25", FONT_3x8_TINY, true);
+
+    display->drawLine(20, 138, 265, 138, true);
+    display->drawString(20, 150, "NFC Reader:", FONT_5x8, true);
+
+    if (nfc.isOpen()) {
+        display->drawString(20, 166, "Estado: OPEN", FONT_3x8_TINY, true);
+        display->drawString(20, 178, "Puerto: UART", FONT_3x8_TINY, true);
+    } else {
+        display->drawString(20, 166, "Estado: INIT...", FONT_3x8_TINY, true);
+        display->drawString(20, 178, "Puerto: /dev/ttyS0", FONT_3x8_TINY, true);
+    }
+
+    display->drawCenteredString(210, "Iniciando sistema...", FONT_3x8_TINY, true);
     display->update();
-    usleep(2000000);
+    usleep(3000000);
 
     display->clearScreen(true);
-    display->drawCenteredString(100, "Esperando tag...", FONT_7x8_THICK, true);
+    display->drawCenteredString(70, "SISTEMA LISTO", FONT_7x8_THICK, true);
+    display->drawCenteredString(100, "Esperando tag NFC...", FONT_5x8, true);
     display->update();
-    usleep(500000);
+    usleep(800000);
 
     std::cout << "NFC reader ready. Waiting for tags..." << std::endl;
 
