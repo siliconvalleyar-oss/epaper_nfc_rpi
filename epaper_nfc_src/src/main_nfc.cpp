@@ -63,6 +63,20 @@ int main() {
         return 1;
     }
 
+    std::cout << "NFC reader ready." << std::endl;
+
+    display->clearScreen(true);
+    display->drawCenteredString(60, "SISTEMA", FONT_7x8_THICK, true);
+    display->drawCenteredString(85, "NFC + E-PAPER", FONT_7x8_THICK, true);
+    display->drawCenteredString(130, "Iniciando...", FONT_3x8_TINY, true);
+    display->update();
+    usleep(2000000);
+
+    display->clearScreen(true);
+    display->drawCenteredString(100, "Esperando tag...", FONT_7x8_THICK, true);
+    display->update();
+    usleep(500000);
+
     std::cout << "NFC reader ready. Waiting for tags..." << std::endl;
 
     bool lastTagPresent = false;
