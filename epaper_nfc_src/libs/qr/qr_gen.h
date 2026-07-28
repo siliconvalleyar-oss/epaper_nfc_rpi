@@ -1,21 +1,34 @@
 #pragma once
-#include <nfc/nfc.h>
-#include <cstdint>
-
-extern "C" {
+#include <iostream>
+#include <cstring>
 #include <qrencode.h>
+
+
+#define SCALE 5	//4
+
+namespace QR
+{
+
+// Definición del tamaño de la imagen
+    const int IMAGE_WIDTH = 152;
+    const int IMAGE_HEIGHT = 296;
+    const int BYTES_PER_ROW { IMAGE_WIDTH / 8};  // 152 bits / 8 = 19 bytes por fila
+
+        struct Qr_gen_t
+            {
+                Qr_gen_t()=default;
+                ~Qr_gen_t()=default;
+            public:
+                void    setPixel        (int x, int y, bool isBlack) ;
+                void    drawQRCode      (const char* data, int scaleFactor);
+                int     qr_generator    ();
+
+                private:
+
+                    // Buffer de imagen en blanco y negro
+                    unsigned char imageBuffer[BYTES_PER_ROW * IMAGE_HEIGHT] = {0};
+
+            };
+
 }
 
-namespace QR {
-
-constexpr int QrBufferSize = 296 * 152;
-
-struct QrGen {
-    uint8_t imageBuffer[QrBufferSize] = {0};
-
-    void clear() { memset(imageBuffer, 0, sizeof(imageBuffer)); }
-    void drawQRCode(const char* data, int scale = 4);
-    int qr_generator();
-};
-
-}
