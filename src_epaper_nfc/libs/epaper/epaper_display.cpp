@@ -119,7 +119,7 @@ void EpaperDisplay::drawLine(int x0, int y0, int x1, int y1, bool black) {
     }
 }
 
-}
+void EpaperDisplay::drawCharToBuffer(int x, int y, char c, FontManager& fm, bool black) {
     const uint8_t* bitmap = fm.getCharBitmap(c);
     if (!bitmap) return;
 
