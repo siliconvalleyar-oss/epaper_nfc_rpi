@@ -25,7 +25,7 @@ static std::string uidToHexString(const NFC::NfcTag& tag) {
 }
 
 static std::string getTagTypeString(const NFC::NfcTag& tag) {
-    uint16_t atqa16 = (uint16_t)(tag.atqa[0] | ((uint16_t)tag.atqa[1] << 8));
+    uint16_t atqa16 = NFC::atqaToUint16(tag);
 
     if (atqa16 == 0x0004 && tag.sak == 0x08) {
         return "Mifare Classic 1K";
@@ -44,7 +44,7 @@ static std::string getTagTypeString(const NFC::NfcTag& tag) {
     }
 
     char buf[32] = {0};
-    snprintf(buf, sizeof(buf), "ISO14443A ATQA:%04X", atqa16);
+    snprintf(buf, sizeof(buf), "ATQA:%04X SAK:%02X", atqa16, tag.sak);
     return std::string(buf);
 }
 

@@ -14,6 +14,10 @@ struct NfcTag {
     uint8_t sak;
 };
 
+inline uint16_t atqaToUint16(const NFC::NfcTag& tag) {
+    return (uint16_t)(((uint16_t)tag.atqa[0] << 8) | tag.atqa[1]);
+}
+
 struct TagInfo {
     NFC::NfcTag tag;
     int readCount;
