@@ -115,18 +115,13 @@ int main() {
     int totalUniqueTags = 0;
     time_t tagFirstSeen = 0;
     std::string displayedUid;
+    time_t lastTagTime = 0;
+    const int TAG_DISPLAY_SECONDS = 3;
 
     while (running) {
-        display->clearScreen(true);
-
-        int y = 10;
-        display->drawCenteredString(y, "NFC READER", FONT_7x8_THICK, true);
-        y += 14;
-        display->drawLine(10, y, 285, y, true);
-        y += 10;
-
         NFC::NfcTag tag;
         bool tagPresent = nfc.poll(tag);
+        time_t now = time(nullptr);
 
         if (tagPresent) {
             std::string uid = uidToHexString(tag);
@@ -138,21 +133,28 @@ int main() {
                       << " | Tipo: " << typeStr
                       << " | Bytes UID: " << (int)tag.uid.size() << std::endl;
 
-            if (uid == lastUid) {
-                stableCount++;
-            } else {
-                stableCount = 0;
+            if (uid != lastUid) {
                 lastUid = uid;
+                stableCount = 0;
             }
+            stableCount++;
 
             if (stableCount >= STABLE_REQUIRED) {
                 if (uid != displayedUid) {
                     displayedUid = uid;
                     if (tagFirstSeen == 0) {
-                        tagFirstSeen = time(nullptr);
+                        tagFirstSeen = now;
                         totalUniqueTags++;
                     }
                 }
+                lastTagTime = now;
+
+                display->clearScreen(true);
+                int y = 10;
+                display->drawCenteredString(y, "NFC READER", FONT_7x8_THICK, true);
+                y += 14;
+                display->drawLine(10, y, 285, y, true);
+                y += 10;
 
                 display->drawCenteredString(y, "Tag detectado:", FONT_5x8, true);
                 y += 12;
@@ -176,7 +178,7 @@ int main() {
                 display->drawCenteredString(y, info, FONT_3x8_TINY, true);
                 y += 9;
 
-                int elapsed = (int)(time(nullptr) - tagFirstSeen);
+                int elapsed = (int)(now - tagFirstSeen);
                 if (elapsed >= 60) {
                     snprintf(info, sizeof(info), "Tiempo: %dm%ds", elapsed / 60, elapsed % 60);
                 } else {
@@ -208,14 +210,38 @@ int main() {
                     display->drawCenteredString(y, "(retire la tarjeta)", FONT_3x8_TINY, true);
                     y += 9;
                 }
-            } else {
-                display->drawCenteredString(y, "Leyendo...", FONT_5x8, true);
-                y += 12;
+
+                display->update();
+                usleep(200000);
+                continue;
             }
-        } else {
+
+            display->clearScreen(true);
+            int y = 10;
+            display->drawCenteredString(y, "NFC READER", FONT_7x8_THICK, true);
+            y += 14;
+            display->drawLine(10, y, 285, y, true);
+            y += 10;
+            display->drawCenteredString(y, "Leyendo...", FONT_5x8, true);
+            display->update();
+            usleep(200000);
+            continue;
+        }
+
+        if (lastTagTime == 0 || (now - lastTagTime) >= TAG_DISPLAY_SECONDS) {
+            lastTagTime = 0;
+            displayedUid.clear();
+            tagFirstSeen = 0;
+            totalUniqueTags = 0;
             stableCount = 0;
             lastUid.clear();
 
+            display->clearScreen(true);
+            int y = 10;
+            display->drawCenteredString(y, "NFC READER", FONT_7x8_THICK, true);
+            y += 14;
+            display->drawLine(10, y, 285, y, true);
+            y += 10;
             display->drawCenteredString(y, "Acerca una tarjeta NFC", FONT_5x8, true);
             y += 12;
             display->drawCenteredString(y, "o tag al lector PN532", FONT_5x8, true);
@@ -223,19 +249,8 @@ int main() {
             display->drawCenteredString(y, "", FONT_5x8, true);
             y += 12;
             display->drawCenteredString(y, "Esperando...", FONT_3x8_TINY, true);
+            display->update();
         }
 
-        display->update();
         usleep(200000);
     }
-
-    std::cout << "Shutting down..." << std::endl;
-    display    usleep(200000);
-    }
-
-    std::cout << "Shutting down..." << std::endl;
-    display.reset();
-    bcm2835_close();
-    std::cout << "Done." << std::endl;
-    return 0;
-}
