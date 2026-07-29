@@ -230,10 +230,6 @@ int main() {
     }
 
     std::cout << "Shutting down..." << std::endl;
-    display    usleep(200000);
-    }
-
-    std::cout << "Shutting down..." << std::endl;
     display.reset();
     bcm2835_close();
     std::cout << "Done." << std::endl;
