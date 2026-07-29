@@ -111,7 +111,7 @@ int main() {
 
     std::string lastUid;
     int stableCount = 0;
-    const int STABLE_REQUIRED = 3;
+    const int STABLE_REQUIRED = 1;
     int totalUniqueTags = 0;
     time_t tagFirstSeen = 0;
     std::string displayedUid;
@@ -227,6 +227,10 @@ int main() {
 
         display->update();
         usleep(200000);
+    }
+
+    std::cout << "Shutting down..." << std::endl;
+    display    usleep(200000);
     }
 
     std::cout << "Shutting down..." << std::endl;
